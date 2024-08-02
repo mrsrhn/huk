@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bildergalerie</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: black;
+      }
+      #slideshow {
+        position: relative;
+        width: 99%;
+        height: 99%;
+      }
+      .slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 1s;
+      }
+      .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* or "cover" to fill the space while preserving aspect ratio */
+      }
+      .slide.active {
+        opacity: 1;
+      }
+      #audio-player {
+        display: none; /* Hide the audio player */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="slideshow">
+      <% images.forEach((image, index) => { %>
+      <div class="slide <%= index === 0 ? 'active' : '' %>">
+        <img src="/images/<%= image %>" alt="Bild" />
+      </div>
+      <% }) %>
+    </div>
+
+    <!-- Hidden audio player for playing MP3 files -->
+    <audio id="audio-player" controls autoplay>
+      <% audios.forEach((audio, index) => { %>
+      <source src="/audio/<%= audio %>" type="audio/mpeg" />
+      <% }) %> Your browser does not support the audio element.
+    </audio>
+
+    <script>
+      const slides = document.querySelectorAll(".slide");
+      let currentSlide = 0;
+      const interval = 7000; // 7 seconds
+
+      function showNextSlide() {
+        slides[currentSlide].classList.remove("active");
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add("active");
+      }
+
+      setInterval(showNextSlide, interval);
+
+      // Handle audio playback
+      const audioPlayer = document.getElementById("audio-player");
+      const sources = audioPlayer.querySelectorAll("source");
+      let currentAudio = 0;
+      audioPlayer.load();
+
+      function playNextAudio() {
+        audioPlayer.src = audioPlayer.children[currentAudio].src;
+        audioPlayer.play();
+        currentAudio = (currentAudio + 1) % sources.length;
+      }
+
+      audioPlayer.addEventListener("ended", playNextAudio);
+
+      document.addEventListener("click", playNextAudio, { once: true });
+    </script>
+  </body>
+</html>
